@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <error.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -14,8 +16,8 @@ int main()
 
     client_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket_fd == -1) {
-        //socket not created
-        return -1;
+        error_at_line(-1, errno, __FILE__, __LINE__, "Error from socket()");
+
     }
 
     memset(&server_addr, 0, sizeof(struct sockaddr_in));
@@ -24,11 +26,11 @@ int main()
     server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     if(connect(client_socket_fd, (struct sockaddr *)&server_addr, (socklen_t)sizeof(struct sockaddr_in)) == -1){
-        return -1;
+        error_at_line(-1, errno, __FILE__, __LINE__, "Error from connect()");
     }
 
     if(read(client_socket_fd, rd_buffer, 128) < 0){
-        return -1;
+        error_at_line(-1, errno, __FILE__, __LINE__, "Error from read()");
     }
     printf("Data received:\n %s", rd_buffer);
 
